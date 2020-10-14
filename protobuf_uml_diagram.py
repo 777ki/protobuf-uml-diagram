@@ -100,15 +100,16 @@ def _process_descriptor(descriptor: Descriptor, classes: list,
             # is it a repeated field?
             label = LABELS_BY_NUMBER[_field.label]
             if label == 'repeated':
-                relationships.append(f"    \"{that_node}\"->\"{this_node}\" [dir=backward;arrowhead=odiamond,arrowtail=normal;headlabel=\"1\";taillabel=\"0..*\"]")
+                relationships.append(f"    \"{that_node}\"->\"{this_node}\" [dir=backward;arrowhead=odiamond,arrowtail=normal]")
             else:
-                relationships.append(f"    \"{this_node}\"->\"{that_node}\" [arrowhead=none;headlabel=\"1\";taillabel=\"1\"]")
+                relationships.append(f"    \"{this_node}\"->\"{that_node}\" [arrowhead=none]")
 
             field_type = that_node  # so we replace the 'message' token by the actual name
         else:
             field_type = TYPES_BY_NUMBER[_field.type]
 
-        fields.append(f"+ {_field.full_name}:{field_type}")
+        #fields.append(f"+ {_field.full_name}:{field_type}\\l")
+        fields.append(f"+ {_field.name}:{field_type}\\l")
 
     # add fields
     type_template_text.write("\\n".join(fields))
@@ -136,8 +137,9 @@ def _get_uml_template(proto_module: ModuleType) -> str:
 digraph "Protobuf UML class diagram" {
     fontname="Bitstream Vera Sans"
     fontsize=10
+    labeljust=left
     node[shape=record,style=filled,fillcolor=gray95,fontname="Bitstream Vera Sans",fontsize=8]
-    edge[fontname="Bitstream Vera Sans",fontsize=8]
+    edge[fontname="Bitstream Vera Sans",fontsize=10]
 
 $classes
 
@@ -202,7 +204,8 @@ class Diagram:
             raise ValueError("No file format!")
 
         uml_template = _get_uml_template(self._proto_module)
-
+        uml_template = uml_template.replace("tensorflow.","")
+        print(uml_template)
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug("UML template:")
             logger.debug(uml_template)
